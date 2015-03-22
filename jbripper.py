@@ -23,10 +23,10 @@ currentTrack = None
 started = None
 
 def track_name(track):
-    return u' '.join((track.artists()[0].name()," - " ,track.name(),".mp3")).encode('utf-8').strip() #track.name()+".mp3"
+    return u' '.join((track.artists()[0].name().strip()," - " ,track.name().strip(),".mp3")).encode('utf-8').strip() #track.name()+".mp3"
     
 def folder_name(track):
-    return u' '.join((track.artists()[0].name(), "/" , track.album().name())).encode('utf-8').strip()
+    return u' '.join((track.artists()[0].name().strip(), "/" , track.album().name().strip())).encode('utf-8').strip()
 
 def printstr(str): # print without newline
     sys.stdout.write(str)
@@ -79,7 +79,9 @@ def rip_terminate(session, track):
 
 def rip(session, frames, frame_size, num_frames, sample_type, sample_rate, channels):
     if ripping:#printstr('.')
-        sys.stdout.write("Progress: "+str(int((datetime.datetime.now() - started).total_seconds()))+"s / "+str(currentTrack.duration()/1000)+"s     \r")
+        max = float(currentTrack.duration()/1000)
+        current = float(((datetime.datetime.now() - started).total_seconds())*1.5)
+        sys.stdout.write(" "+str(int((100/max)*current))+"%     \r")
         sys.stdout.flush()
         pipe.write(frames)
         
