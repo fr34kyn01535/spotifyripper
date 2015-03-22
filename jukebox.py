@@ -345,7 +345,7 @@ class Jukebox(SpotifySessionManager):
         self.playlist_manager = JukeboxPlaylistManager()
         self.container_manager = JukeboxContainerManager()
         self.track_playing = None
-        print "Logging in, please wait..."
+        print "Logging in, please wait...",
 
     def new_track_playing(self, track):
         self.track_playing = track
@@ -354,7 +354,7 @@ class Jukebox(SpotifySessionManager):
         if error:
             print error
             return
-        print "Logged in!"
+        print "success"
         self.ctr = session.playlist_container()
         self.container_manager.watch(self.ctr)
         self.starred = session.starred()
@@ -362,10 +362,10 @@ class Jukebox(SpotifySessionManager):
             self.ui.start()
 
     def logged_out(self, session):
-        print "Logged out!"
+        print "Logging out"
 
     def load_track(self, track):
-        print u"Loading track..."
+        #print u"Loading track..."
         while not track.is_loaded():
             time.sleep(0.1)
         if track.is_autolinked():  # if linked, load the target track instead
@@ -377,7 +377,7 @@ class Jukebox(SpotifySessionManager):
             self.stop()
         self.new_track_playing(track)
         self.session.load(track)
-        print "Loaded track: %s" % track.name()
+        #print "Loaded track: %s" % track.name()
 
     def load(self, playlist, track):
         if self.playing:
@@ -419,18 +419,18 @@ class Jukebox(SpotifySessionManager):
     def play(self):
         self.audio.start()
         self.session.play(1)
-        print "Playing"
+        #print "Playing"
         self.playing = True
 
     def pause(self):
         self.session.play(0)
-        print "Pausing"
+        #print "Pausing"
         self.playing = False
         self.audio.pause()
 
     def stop(self):
         self.session.play(0)
-        print "Stopping"
+        #print "Stopping"
         self.playing = False
         self.audio.stop()
 
