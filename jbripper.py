@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 
 from subprocess import call, Popen, PIPE
 from spotify import Link, Image
@@ -7,6 +7,11 @@ from jukebox import Jukebox, container_loaded
 import os, sys
 import threading
 import time
+import datetime
+
+import sys
+reload(sys)  
+sys.setdefaultencoding('Cp1252')
 
 playback = False # set if you want to listen to the tracks that are currently ripped (start with "padsp ./jbripper.py ..." if using pulse audio)
 output_folder = os.getcwd() + "/download/" # change if you want to change output folder
@@ -14,12 +19,14 @@ pipe = None
 ripping = False
 skipping = False
 end_of_track = threading.Event()
+currentTrack = None
+started = None
 
 def track_name(track):
-    return track.artists()[0].name()+ " - " +track.name()+".mp3" #track.name()+".mp3"
+    return u' '.join((track.artists()[0].name()," - " ,track.name(),".mp3")).encode('utf-8').strip() #track.name()+".mp3"
     
 def folder_name(track):
-    return "/" #track.artists()[0].name() + "/" + track.album().name()
+    return u' '.join((track.artists()[0].name(), "/" , track.album().name())).encode('utf-8').strip()
 
 def printstr(str): # print without newline
     sys.stdout.write(str)
@@ -29,21 +36,23 @@ def shell(cmdline): # execute shell commands (unicode support)
     call(cmdline, shell=True)
 
 def rip_init(session, track):
-    global pipe, ripping, skipping, output_folder
+    global pipe, ripping, skipping, output_folder, currentTrack, started
+    currentTrack = track
+    started = datetime.datetime.now()
     num_track = "%02d" % (track.index(),)
-    mp3file = track_name(track) 
+    mp3file = track_name(track)
     directory = output_folder + folder_name(track) + "/"
-    fullpath = directory+mp3file
+    fullpath = u' '.join((directory,mp3file)).encode('utf-8').strip()
     
     if os.path.isfile(fullpath):
         if isMp3Valid(fullpath):
-            print("skipping " + mp3file + " (already exists)")
+            print("Skipping " + mp3file + " (already exists)")
             skipping = True  
         else:
-            print("repeating " + mp3file + " (file corrupt)")
+            print("Repeating " + mp3file + " (file corrupt)")
             skipping = False
     else:
-        print("ripping " + mp3file + " ...")
+        print("Ripping " + mp3file + "...")
         skipping = False
         
     if not skipping:
@@ -61,7 +70,7 @@ def rip_init(session, track):
 def rip_terminate(session, track):
     global ripping
     if pipe is not None:
-        print(' done!')
+        print('done')
         pipe.close()
     ripping = False
     f = open("ripping.status",'w')
@@ -69,17 +78,18 @@ def rip_terminate(session, track):
     f.close()
 
 def rip(session, frames, frame_size, num_frames, sample_type, sample_rate, channels):
-    if ripping:
-        printstr('.')
-        pipe.write(frames);
+    if ripping:#printstr('.')
+        sys.stdout.write("Progress: "+str(int((datetime.datetime.now() - started).total_seconds()))+"s / "+str(currentTrack.duration()/1000)+"s     \r")
+        sys.stdout.flush()
+        pipe.write(frames)
         
 def rip_id3(session, track): # write ID3 data
     global output_folder
     num_track = "%02d" % (track.index(),)
     mp3file = track_name(track)
-    artist = track.artists()[0].name()
-    album = track.album().name()
-    title = track.name()
+    artist = track.artists()[0].name().encode('utf-8')
+    album = track.album().name().encode('utf-8')
+    title = track.name().encode('utf-8')
     year = track.album().year()
     directory =  output_folder + folder_name(track) + "/"
 
@@ -99,10 +109,8 @@ def rip_id3(session, track): # write ID3 data
           " -A \"" + album + "\"" + \
           " -n " + str(num_track) + \
           " -Y " + str(year) + \
-          " -Q " + \
           " \"" + directory + mp3file + "\""
     shell(cmd)
-
     # delete cover
     shell("rm -f cover.jpg")    
 
@@ -256,7 +264,7 @@ class RipperThread(threading.Thread):
             itrack = iter([track])
         elif link.type() == Link.LINK_PLAYLIST:
             playlist = link.as_playlist()
-            print('loading playlist ...')
+            print('Loading playlist...'),
             while not playlist.is_loaded():
                 time.sleep(0.1)
             print('done')
@@ -278,7 +286,7 @@ class RipperThread(threading.Thread):
                 else:
                     rip_terminate(session, track)
                     skipping = False
-                print('\n\n')
+                #print('\n\n')
 
         self.ripper.disconnect()
 
