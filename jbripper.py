@@ -23,10 +23,10 @@ currentTrack = None
 started = None
 
 def track_name(track):
-    return u' '.join((track.artists()[0].name().strip()," - " ,track.name().strip(),".mp3")).encode('utf-8').strip() #track.name()+".mp3"
+    return u''.join((track.artists()[0].name().strip()," - " ,track.name().strip(),".mp3")).encode('utf-8').strip() #track.name()+".mp3"
     
 def folder_name(track):
-    return u' '.join((track.artists()[0].name().strip(), "/" , track.album().name().strip())).encode('utf-8').strip()
+    return u''.join((track.artists()[0].name().strip(), "/" , track.album().name().strip())).encode('utf-8').strip()
 
 def printstr(str): # print without newline
     sys.stdout.write(str)
@@ -42,7 +42,7 @@ def rip_init(session, track):
     num_track = "%02d" % (track.index(),)
     mp3file = track_name(track)
     directory = output_folder + folder_name(track) + "/"
-    fullpath = u' '.join((directory,mp3file)).encode('utf-8').strip()
+    fullpath = u''.join((directory,mp3file)).encode('utf-8').strip()
     
     if os.path.isfile(fullpath):
         if isMp3Valid(fullpath):
