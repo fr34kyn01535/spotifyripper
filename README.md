@@ -36,5 +36,5 @@ TODO
 ----
 - [ ] skip exisiting track (avoid / completed tracks / completed = successful id3)
 - [ ] detect if other spotify instance is interrupting
-- [ ] add album supprt : spotify:album:1UnRYaeCev9JVKEHWBEgHe
+- [ ] add album support : spotify:album:1UnRYaeCev9JVKEHWBEgHe
 
